@@ -72,6 +72,8 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
         html = navegador.page_source
         sopa = BeautifulSoup(html, "html.parser")
         tarjetas = sopa.find_all("a", class_="js-href_list_products")
+        tarjetas = sopa.find_all("a", class_="js-href_list_products")
+print(f"   -> {len(tarjetas)} fichas encontradas")
 
         for tarjeta in tarjetas:
             titulo = tarjeta.get("title", "").strip()
