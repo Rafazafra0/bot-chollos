@@ -5,6 +5,8 @@ import re
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import csv
 import time
 import os
@@ -86,7 +88,19 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
         except Exception:
             pass
 
-        time.sleep(5)
+        try:
+            WebDriverWait(navegador, 20).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "js-precio_producto"))
+            )
+        except Exception:
+            print("   ⚠️ El precio no apareció tras 20 segundos de espera")
+
+        try:
+            WebDriverWait(navegador, 20).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "js-precio_producto"))
+            )
+        except Exception:
+            print("   ⚠️ El precio no apareció tras 20 segundos de espera")
 
         html = navegador.page_source
         sopa = BeautifulSoup(html, "html.parser")
