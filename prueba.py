@@ -7,13 +7,13 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 import csv
 import time
+import os
 
 PRECIO_OBJETIVO = 10.00
 DESCUENTO_MINIMO = 80
 
-TELEGRAM_TOKEN = "8886208611:AAGF7E6_m2i_dM7pGG-rjiK3pJuOHcj3Kps"
-TELEGRAM_CHAT_ID = "1532467071"
-
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 cabeceras = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
 }
@@ -48,6 +48,8 @@ chollos_encontrados = []
 
 opciones = Options()
 opciones.add_argument("--headless=new")
+opciones.add_argument("--no-sandbox")
+opciones.add_argument("--disable-dev-shm-usage")
 navegador = webdriver.Chrome(options=opciones)
 
 with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as archivo:
