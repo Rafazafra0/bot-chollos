@@ -45,6 +45,8 @@ for enlace in sopa_portada.find_all("a", href=True):
 print(f"✅ {len(URLS_A_REVISAR)} marcas encontradas. Empezando a revisarlas...\n")
 
 chollos_encontrados = []
+contador_ok = 0
+contador_sin_precio = 0
 
 opciones = Options()
 opciones.add_argument("--headless=new")
@@ -78,13 +80,17 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
             titulo = tarjeta.get("title", "").strip()
             enlace_completo = urljoin(url, tarjeta["href"])
 
-            precio_tag = tarjeta.find("p", class_="js-precio_producto")
+                        precio_tag = tarjeta.find("p", class_="js-precio_producto")
             if not precio_tag:
+                contador_sin_precio += 1
                 continue
             precio_numero = a_numero(precio_tag.text)
             if precio_numero is None:
+                contador_sin_precio += 1
+                if contador_sin_precio <= 3:
+                    print(f"   ⚠️ No pude convertir este precio: {repr(precio_tag.text)}")
                 continue
-
+            contador_ok += 1
             descuento_pct = None
             precio_anterior_numero = None
             precio_anterior_tag = tarjeta.find("p", class_="js-precio_producto_anterior")
@@ -99,6 +105,8 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
                 print("🚨 ¡CHOLLO!", titulo, precio_numero)
                 escritor.writerow([titulo, precio_numero, precio_anterior_numero if descuento_pct else "", descuento_pct or "", enlace_completo, url])
                 chollos_encontrados.append((titulo, precio_numero, descuento_pct, enlace_completo))
+
+print(f"\nResumen: {contador_ok} precios leídos correctamente, {contador_sin_precio} descartados.")
 
 navegador.quit()
 
