@@ -9,7 +9,7 @@ import csv
 import time
 import os
 
-PRECIO_OBJETIVO = 10.00
+PRECIO_OBJETIVO = 20.00
 DESCUENTO_MINIMO = 70
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
@@ -31,6 +31,17 @@ def a_numero(texto_precio):
         return float(limpio)
     except ValueError:
         return None
+
+def buscar_contenedor_texto(tarjeta):
+    ancestro = tarjeta
+    for _ in range(5):
+        ancestro = ancestro.find_parent()
+        if ancestro is None:
+            return None
+        candidato = ancestro.find(class_="listado-txt")
+        if candidato:
+            return candidato
+    return None
 
 print("🔎 Buscando marcas en oferta en la portada...")
 respuesta_portada = requests.get("https://www.tradeinn.com/outletinn/es", headers=cabeceras)
@@ -81,21 +92,24 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
             titulo = tarjeta.get("title", "").strip()
             enlace_completo = urljoin(url, tarjeta["href"])
 
-            precio_tag = tarjeta.find("p", class_="js-precio_producto")
+            contenedor_texto = buscar_contenedor_texto(tarjeta)
+            if not contenedor_texto:
+                contador_sin_precio += 1
+                continue
+
+            precio_tag = contenedor_texto.find("p", class_="js-precio_producto")
             if not precio_tag:
                 contador_sin_precio += 1
                 continue
             precio_numero = a_numero(precio_tag.text)
             if precio_numero is None:
                 contador_sin_precio += 1
-                if contador_sin_precio <= 3:
-                    print(f"   ⚠️ No pude convertir este precio: {repr(precio_tag.text)}")
                 continue
             contador_ok += 1
 
             descuento_pct = None
             precio_anterior_numero = None
-            precio_anterior_tag = tarjeta.find("p", class_="js-precio_producto_anterior")
+            precio_anterior_tag = contenedor_texto.find("p", class_="js-precio_producto_anterior")
             if precio_anterior_tag:
                 precio_anterior_numero = a_numero(precio_anterior_tag.text)
                 if precio_anterior_numero and precio_anterior_numero > 0:
