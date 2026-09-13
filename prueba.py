@@ -9,7 +9,7 @@ import csv
 import time
 import os
 
-PRECIO_OBJETIVO = 10.00
+PRECIO_OBJETIVO = 20.00
 DESCUENTO_MINIMO = 70
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
@@ -42,6 +42,11 @@ def buscar_contenedor_texto(tarjeta):
         if candidato:
             return candidato
     return None
+
+def obtener_ambito_precio(tarjeta):
+    if tarjeta.find("p", class_="js-precio_producto"):
+        return tarjeta
+    return buscar_contenedor_texto(tarjeta)
 
 print("🔎 Buscando marcas en oferta en la portada...")
 respuesta_portada = requests.get("https://www.tradeinn.com/outletinn/es", headers=cabeceras)
@@ -92,7 +97,7 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
             titulo = tarjeta.get("title", "").strip()
             enlace_completo = urljoin(url, tarjeta["href"])
 
-            contenedor_texto = buscar_contenedor_texto(tarjeta)
+            contenedor_texto = obtener_ambito_precio(tarjeta)
             if not contenedor_texto:
                 contador_sin_precio += 1
                 continue
