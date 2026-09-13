@@ -9,11 +9,12 @@ import csv
 import time
 import os
 
-PRECIO_OBJETIVO = 50.00
-DESCUENTO_MINIMO = 20
+PRECIO_OBJETIVO = 10.00
+DESCUENTO_MINIMO = 70
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
 cabeceras = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
 }
@@ -59,7 +60,6 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
     escritor.writerow(['Título', 'Precio (€)', 'Precio anterior (€)', 'Descuento %', 'Enlace', 'Categoría'])
 
     for url in URLS_A_REVISAR:
-        print(f"📂 Revisando: {url}")
         navegador.get(url)
         time.sleep(3)
 
@@ -74,13 +74,14 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
         html = navegador.page_source
         sopa = BeautifulSoup(html, "html.parser")
         tarjetas = sopa.find_all("a", class_="js-href_list_products")
+        print(f"Revisando: {url}")
         print(f"   -> {len(tarjetas)} fichas encontradas")
 
         for tarjeta in tarjetas:
             titulo = tarjeta.get("title", "").strip()
             enlace_completo = urljoin(url, tarjeta["href"])
 
-                        precio_tag = tarjeta.find("p", class_="js-precio_producto")
+            precio_tag = tarjeta.find("p", class_="js-precio_producto")
             if not precio_tag:
                 contador_sin_precio += 1
                 continue
@@ -91,6 +92,7 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
                     print(f"   ⚠️ No pude convertir este precio: {repr(precio_tag.text)}")
                 continue
             contador_ok += 1
+
             descuento_pct = None
             precio_anterior_numero = None
             precio_anterior_tag = tarjeta.find("p", class_="js-precio_producto_anterior")
@@ -107,7 +109,6 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
                 chollos_encontrados.append((titulo, precio_numero, descuento_pct, enlace_completo))
 
 print(f"\nResumen: {contador_ok} precios leídos correctamente, {contador_sin_precio} descartados.")
-
 navegador.quit()
 
 if chollos_encontrados:
