@@ -9,7 +9,7 @@ import csv
 import time
 import os
 
-PRECIO_OBJETIVO = 20.00
+PRECIO_OBJETIVO = 10.00
 DESCUENTO_MINIMO = 70
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
