@@ -108,6 +108,18 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
         print(f"Revisando: {url}")
         print(f"   -> {len(tarjetas)} fichas encontradas")
 
+        if not locals().get("ya_volque_debug") and tarjetas:
+            print("\n===== VOLCADO DE DEBUG (solo la primera vez) =====")
+            print(tarjetas[0].prettify()[:1500])
+            padre_debug = tarjetas[0].find_parent()
+            if padre_debug:
+                print("\n--- Padre directo ---")
+                print(padre_debug.prettify()[:1500])
+            print("===== FIN DEL VOLCADO =====\n")
+            ya_volque_debug = True
+        print(f"Revisando: {url}")
+        print(f"   -> {len(tarjetas)} fichas encontradas")
+
         for tarjeta in tarjetas:
             titulo = tarjeta.get("title", "").strip()
             enlace_completo = urljoin(url, tarjeta["href"])
