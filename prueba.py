@@ -11,8 +11,8 @@ import csv
 import time
 import os
 
-PRECIO_OBJETIVO = 20.00
-DESCUENTO_MINIMO = 70
+PRECIO_OBJETIVO = 50.00
+DESCUENTO_MINIMO = 20
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -33,22 +33,6 @@ def a_numero(texto_precio):
         return float(limpio)
     except ValueError:
         return None
-
-def buscar_contenedor_texto(tarjeta):
-    ancestro = tarjeta
-    for _ in range(5):
-        ancestro = ancestro.find_parent()
-        if ancestro is None:
-            return None
-        candidato = ancestro.find(class_="listado-txt")
-        if candidato:
-            return candidato
-    return None
-
-def obtener_ambito_precio(tarjeta):
-    if tarjeta.find("p", class_="js-precio_producto"):
-        return tarjeta
-    return buscar_contenedor_texto(tarjeta)
 
 print("🔎 Buscando marcas en oferta en la portada...")
 respuesta_portada = requests.get("https://www.tradeinn.com/outletinn/es", headers=cabeceras)
@@ -95,39 +79,15 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
         except Exception:
             print("   ⚠️ El precio no apareció tras 20 segundos de espera")
 
-        try:
-            WebDriverWait(navegador, 20).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "js-precio_producto"))
-            )
-        except Exception:
-            print("   ⚠️ El precio no apareció tras 20 segundos de espera")
-
         html = navegador.page_source
         sopa = BeautifulSoup(html, "html.parser")
-        tarjetas = sopa.find_all("a", class_="js-href_list_products")
+
+        bloques = sopa.find_all(class_="listado-txt")
         print(f"Revisando: {url}")
-        print(f"   -> {len(tarjetas)} fichas encontradas")
-        if not locals().get("ya_volque_debug") and tarjetas:
-            print("\n===== DEBUG DE CONTEO =====")
-            print("listado-txt en toda la página:", len(sopa.find_all(class_="listado-txt")))
-            print("js-precio_producto en toda la página:", len(sopa.find_all(class_="js-precio_producto")))
-            print("js-nombre_producto_listado en toda la página:", len(sopa.find_all(class_="js-nombre_producto_listado")))
-            print("¿'js-precio_producto' aparece en el HTML crudo?:", "js-precio_producto" in html)
-            print("===== FIN DEBUG =====\n")
-            ya_volque_debug = True
-        print(f"Revisando: {url}")
-        print(f"   -> {len(tarjetas)} fichas encontradas")
+        print(f"   -> {len(bloques)} productos encontrados")
 
-        for tarjeta in tarjetas:
-            titulo = tarjeta.get("title", "").strip()
-            enlace_completo = urljoin(url, tarjeta["href"])
-
-            contenedor_texto = obtener_ambito_precio(tarjeta)
-            if not contenedor_texto:
-                contador_sin_precio += 1
-                continue
-
-            precio_tag = contenedor_texto.find("p", class_="js-precio_producto")
+        for bloque in bloques:
+            precio_tag = bloque.find("p", class_="js-precio_producto")
             if not precio_tag:
                 contador_sin_precio += 1
                 continue
@@ -137,9 +97,23 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
                 continue
             contador_ok += 1
 
+            nombre_tag = bloque.find("p", class_="js-nombre_producto_listado")
+            titulo = nombre_tag.get_text(strip=True) if nombre_tag else "(sin título)"
+
+            enlace_completo = ""
+            contenedor = bloque
+            for _ in range(5):
+                contenedor = contenedor.find_parent()
+                if contenedor is None:
+                    break
+                enlace_tag = contenedor.find("a", class_="js-href_list_products")
+                if enlace_tag and enlace_tag.get("href"):
+                    enlace_completo = urljoin(url, enlace_tag["href"])
+                    break
+
             descuento_pct = None
             precio_anterior_numero = None
-            precio_anterior_tag = contenedor_texto.find("p", class_="js-precio_producto_anterior")
+            precio_anterior_tag = bloque.find("p", class_="js-precio_producto_anterior")
             if precio_anterior_tag:
                 precio_anterior_numero = a_numero(precio_anterior_tag.text)
                 if precio_anterior_numero and precio_anterior_numero > 0:
