@@ -107,15 +107,13 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
         tarjetas = sopa.find_all("a", class_="js-href_list_products")
         print(f"Revisando: {url}")
         print(f"   -> {len(tarjetas)} fichas encontradas")
-
         if not locals().get("ya_volque_debug") and tarjetas:
-            print("\n===== VOLCADO DE DEBUG (solo la primera vez) =====")
-            print(tarjetas[0].prettify()[:1500])
-            padre_debug = tarjetas[0].find_parent()
-            if padre_debug:
-                print("\n--- Padre directo ---")
-                print(padre_debug.prettify()[:1500])
-            print("===== FIN DEL VOLCADO =====\n")
+            print("\n===== DEBUG DE CONTEO =====")
+            print("listado-txt en toda la página:", len(sopa.find_all(class_="listado-txt")))
+            print("js-precio_producto en toda la página:", len(sopa.find_all(class_="js-precio_producto")))
+            print("js-nombre_producto_listado en toda la página:", len(sopa.find_all(class_="js-nombre_producto_listado")))
+            print("¿'js-precio_producto' aparece en el HTML crudo?:", "js-precio_producto" in html)
+            print("===== FIN DEBUG =====\n")
             ya_volque_debug = True
         print(f"Revisando: {url}")
         print(f"   -> {len(tarjetas)} fichas encontradas")
