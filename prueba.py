@@ -82,9 +82,11 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
         html = navegador.page_source
         sopa = BeautifulSoup(html, "html.parser")
 
-        bloques = sopa.find_all(class_="listado-txt")
-        print(f"Revisando: {url}")
-        print(f"   -> {len(bloques)} productos encontrados")
+        if not locals().get("ya_volque_bloque") and bloques:
+            print("\n===== CONTENIDO REAL DEL PRIMER BLOQUE =====")
+            print(bloques[0].prettify())
+            print("===== FIN =====\n")
+            ya_volque_bloque = True
 
         for bloque in bloques:
             precio_tag = bloque.find("p", class_="js-precio_producto")
