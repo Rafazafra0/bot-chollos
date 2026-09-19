@@ -12,7 +12,7 @@ import time
 import os
 
 PRECIO_OBJETIVO = 50.00
-DESCUENTO_MINIMO = 20
+DESCUENTO_MINIMO = 80
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -149,6 +149,7 @@ if chollos_encontrados:
             enviar_telegram(bloque_actual)
             mensajes_enviados += 1
             bloque_actual = ""
+            time.sleep(1.5)
         bloque_actual += linea + "\n\n"
 
     if bloque_actual.strip():
