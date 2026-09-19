@@ -124,8 +124,7 @@ with open('mis_chollos.csv', mode='w', newline='', encoding='utf-8-sig') as arch
                 if precio_anterior_numero and precio_anterior_numero > 0:
                     descuento_pct = round((precio_anterior_numero - precio_numero) / precio_anterior_numero * 100)
 
-            es_chollo = precio_numero < PRECIO_OBJETIVO or (descuento_pct is not None and descuento_pct >= DESCUENTO_MINIMO)
-
+            es_chollo = descuento_pct is not None and descuento_pct >= DESCUENTO_MINIMO
             if es_chollo:
                 print("🚨 ¡CHOLLO!", titulo, precio_numero)
                 escritor.writerow([titulo, precio_numero, precio_anterior_numero if descuento_pct else "", descuento_pct or "", enlace_completo, url])
