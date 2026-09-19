@@ -28,12 +28,12 @@ def enviar_telegram(mensaje):
         print("⚠️ Telegram rechazó el mensaje:", respuesta.text)
 
 def a_numero(texto_precio):
-    limpio = texto_precio.replace("€", "").strip().replace(",", ".")
+    limpio = re.sub(r"[^\d,\.]", "", texto_precio)
+    limpio = limpio.replace(",", ".")
     try:
         return float(limpio)
     except ValueError:
         return None
-
 print("🔎 Buscando marcas en oferta en la portada...")
 respuesta_portada = requests.get("https://www.tradeinn.com/outletinn/es", headers=cabeceras)
 respuesta_portada.encoding = "utf-8"
