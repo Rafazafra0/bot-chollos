@@ -39,6 +39,8 @@ try:
 except Exception as e:
     print("No até el aviso de cookies:", str(e)[:150])
 
+print("¿Aparece €?:", "€" in navegador.page_source, "| ¿Aparece $?:", "$" in navegador.page_source)
+
 ultimo_conteo = 0
 for intento in range(40):
     try:
