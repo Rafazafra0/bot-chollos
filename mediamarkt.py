@@ -48,13 +48,14 @@ for intento in range(40):
         navegador.execute_script("arguments[0].scrollIntoView(true);", boton_mas)
         time.sleep(0.5)
         navegador.execute_script("arguments[0].click();", boton_mas)
-        time.sleep(1.5)
+        time.sleep(4)
     except Exception as e:
         print(f"Paró en el intento {intento + 1}. Motivo: {str(e)[:200]}")
         break
 
     conteo_actual = len(navegador.find_elements(By.CSS_SELECTOR, "a[data-test='mms-router-link-product-list-item-link']"))
-    print(f"   Cargados hasta ahora: {conteo_actual}")
+    contador_texto = re.search(r"\d+\s*de\s*\d+", navegador.page_source)
+    print(f"   Cargados hasta ahora: {conteo_actual} | Contador de la web: {contador_texto.group() if contador_texto else 'no encontrado'}")
 
     conteo_actual = len(navegador.find_elements(By.CSS_SELECTOR, "a[data-test='mms-router-link-product-list-item-link']"))
     if conteo_actual == ultimo_conteo:
