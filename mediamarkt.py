@@ -34,9 +34,10 @@ time.sleep(5)
 try:
     boton_cookies = navegador.find_element(By.XPATH, "//button[contains(text(), 'Aceptar') or contains(text(), 'aceptar')]")
     boton_cookies.click()
+    print("Cookies aceptadas")
     time.sleep(1)
-except Exception:
-    pass
+except Exception as e:
+    print("No até el aviso de cookies:", str(e)[:150])
 
 ultimo_conteo = 0
 for intento in range(40):
@@ -46,8 +47,12 @@ for intento in range(40):
         time.sleep(0.5)
         navegador.execute_script("arguments[0].click();", boton_mas)
         time.sleep(1.5)
-    except Exception:
+    except Exception as e:
+        print(f"Paró en el intento {intento + 1}. Motivo: {str(e)[:200]}")
         break
+
+    conteo_actual = len(navegador.find_elements(By.CSS_SELECTOR, "a[data-test='mms-router-link-product-list-item-link']"))
+    print(f"   Cargados hasta ahora: {conteo_actual}")
 
     conteo_actual = len(navegador.find_elements(By.CSS_SELECTOR, "a[data-test='mms-router-link-product-list-item-link']"))
     if conteo_actual == ultimo_conteo:
